@@ -1,14 +1,18 @@
 import { Canvas } from '@react-three/fiber'
-import { DebugLevel } from '@/levels/DebugLevel'
-import { KootaSystems } from '@/providers/KootaSystems'
 import { InputProvider } from '@/providers/input/InputProvider'
+import { KootaSystems } from '@/providers/KootaSystems'
+import { Physics } from '@react-three/rapier'
+import { DebugLevel } from '@/levels/DebugLevel'
+import { isDebug } from '@/shared/config'
 
 function App() {
   return (
     <Canvas shadows>
       <InputProvider>
         <KootaSystems>
-          <DebugLevel />
+          <Physics debug={isDebug}>
+            <DebugLevel />
+          </Physics>
         </KootaSystems>
       </InputProvider>
     </Canvas>

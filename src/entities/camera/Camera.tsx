@@ -33,6 +33,8 @@ export function Camera({
   return (
     <OrthographicCamera
       ref={ref}
+      position={[position.x, position.y, position.z]}
+      rotation={[rotation.x, rotation.y, rotation.z]}
       makeDefault
       zoom={100}
     />

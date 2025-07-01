@@ -1,6 +1,8 @@
-import { Land } from '@/entities/land'
-import { Camera } from '@/entities/camera'
-import { Player } from '@/entities/player'
+import { Camera } from '@/entities/camera/Camera'
+import { Land } from '@/entities/land/Land'
+import { LandRenderer } from '@/entities/land/LandRenderer'
+import { Player } from '@/entities/player/Player'
+import { PlayerRenderer } from '@/entities/player/PlayerRenderer'
 import { degToRad } from '@/shared/math'
 
 export function DebugLevel() {
@@ -11,7 +13,9 @@ export function DebugLevel() {
         rotation={{ x: degToRad(-50), y: degToRad(-32), z: degToRad(-32) }}
       />
       <Land />
-      <Player position={{ x: 0, y: 0, z: 0 }} />
+      <LandRenderer />
+      <Player position={{ x: 0, y: 1, z: 0 }} />
+      <PlayerRenderer />
       <ambientLight />
       <directionalLight
         castShadow

@@ -1,13 +1,13 @@
-import { Mesh, Position, Rotation, Velocity, Input } from './traits'
+import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody } from './traits'
 import { type World } from 'koota'
 import { multiply, add } from './math'
 
+/** Set mesh position and rotation from position and rotation traits */
 export const transformFromTraits = (world: World) => {
   const entities = world.query(Position, Mesh)
 
   for (const entity of entities) {
     const mesh = entity.get(Mesh)
-
     if (!mesh) continue
 
     const position = entity.get(Position)
@@ -22,8 +22,10 @@ export const transformFromTraits = (world: World) => {
   }
 }
 
+/** Effect only on entities without physics or rigid body */
 export const positionFromVelocity = (world: World, delta: number) => {
   const entities = world.query(Position, Velocity)
+    .filter((entity) => !entity.has(Physics) && !entity.has(RigidBody))
 
   for (const entity of entities) {
     const velocity = entity.get(Velocity)
@@ -33,6 +35,28 @@ export const positionFromVelocity = (world: World, delta: number) => {
       const displacement = multiply(velocity, delta)
       const nextPosition = add(position, displacement)
       entity.set(Position, nextPosition)
+    }
+  }
+}
+
+/** Set traits position and rotation from rigid body */
+export const syncPositionFromRigid = (world: World) => {
+  const entities = world.query(Physics, RigidBody)
+
+  for (const entity of entities) {
+    const physics = entity.get(Physics)
+    if (physics?.type !== 'dynamic') continue
+
+    const rigidBody = entity.get(RigidBody)
+
+    const rigidPosition = rigidBody?.translation()
+    if (rigidPosition && entity.has(Position)) {
+      entity.set(Position, rigidPosition)
+    }
+
+    const rigidRotation = rigidBody?.rotation()
+    if (rigidRotation && entity.has(Rotation)) {
+      entity.set(Rotation, rigidRotation)
     }
   }
 }
