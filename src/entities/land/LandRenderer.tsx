@@ -1,9 +1,9 @@
-import { useEntity } from '@/hooks/useEntities'
+import { useQueryFirst } from 'koota/react'
 import { Land } from './traits'
 import { EntityRenderer } from '@/shared/EntityRenderer'
 
 export function LandRenderer() {
-  const land = useEntity(Land)
+  const land = useQueryFirst(Land)
 
   if (!land) return null
 
