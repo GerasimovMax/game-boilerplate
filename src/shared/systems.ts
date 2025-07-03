@@ -1,6 +1,6 @@
 import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody } from './traits'
-import { type World } from 'koota'
 import { multiply, add } from './math'
+import { type World } from 'koota'
 
 /** Set mesh position and rotation from position and rotation traits */
 export const transformFromTraits = (world: World) => {
@@ -17,7 +17,7 @@ export const transformFromTraits = (world: World) => {
 
     const rotation = entity.get(Rotation)
     if (rotation) {
-      mesh.rotation.set(rotation.x, rotation.y, rotation.z)
+      mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
     }
   }
 }
@@ -25,7 +25,7 @@ export const transformFromTraits = (world: World) => {
 /** Effect only on entities without physics or rigid body */
 export const positionFromVelocity = (world: World, delta: number) => {
   const entities = world.query(Position, Velocity)
-    .filter((entity) => !entity.has(Physics) && !entity.has(RigidBody))
+    .filter((entity) => !entity.has(Physics) || entity.get(Physics)?.type === 'kinematicPosition')
 
   for (const entity of entities) {
     const velocity = entity.get(Velocity)
@@ -40,13 +40,11 @@ export const positionFromVelocity = (world: World, delta: number) => {
 }
 
 /** Set traits position and rotation from rigid body */
-export const syncPositionFromRigid = (world: World) => {
+export const syncTransformFromRigid = (world: World) => {
   const entities = world.query(Physics, RigidBody)
+    .filter((entity) => entity.get(Physics)?.type === 'dynamic')
 
   for (const entity of entities) {
-    const physics = entity.get(Physics)
-    if (physics?.type !== 'dynamic') continue
-
     const rigidBody = entity.get(RigidBody)
 
     const rigidPosition = rigidBody?.translation()
@@ -57,6 +55,27 @@ export const syncPositionFromRigid = (world: World) => {
     const rigidRotation = rigidBody?.rotation()
     if (rigidRotation && entity.has(Rotation)) {
       entity.set(Rotation, rigidRotation)
+    }
+  }
+}
+
+/** Set kinematic body position from traits position */
+export const transformKinematicFromTraits = (world: World) => {
+  const entities = world.query(Physics, RigidBody)
+    .filter((entity) => entity.get(Physics)?.type === 'kinematicPosition')
+
+  for (const entity of entities) {
+    const rigidBody = entity.get(RigidBody)
+    if (!rigidBody) continue
+
+    const position = entity.get(Position)
+    if (position) {
+      rigidBody.setNextKinematicTranslation(position)
+    }
+
+    const rotation = entity.get(Rotation)
+    if (rotation) {
+      rigidBody.setNextKinematicRotation(rotation)
     }
   }
 }
