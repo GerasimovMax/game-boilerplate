@@ -9,11 +9,11 @@ function App() {
   return (
     <Canvas shadows>
       <InputProvider>
-        <KootaSystems>
-          <Physics debug={isDebug}>
-            <DebugLevel />
-          </Physics>
-        </KootaSystems>
+        <Physics debug={isDebug} timeStep="vary">
+          <KootaSystems>
+              <DebugLevel />
+          </KootaSystems>
+        </Physics>
       </InputProvider>
     </Canvas>
   )

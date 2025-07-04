@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useWorld } from 'koota/react'
 import { Position, Velocity, Controllable, Input, Physics } from '@/shared/traits'
-import { Player as PlayerTrait } from './traits'
+import { Player as PlayerTrait, Speed } from './traits'
 import { type Vector3 } from '@/types'
 
 export function Player({ position = { x: 0, y: 0, z: 0 } }: { position?: Vector3 }) {
@@ -14,7 +14,8 @@ export function Player({ position = { x: 0, y: 0, z: 0 } }: { position?: Vector3
       Velocity(),
       Controllable,
       Input(),
-      Physics
+      Speed({ value: 2.5 }),
+      Physics({ type: 'kinematic' })
     )
 
     return () => entity.destroy()

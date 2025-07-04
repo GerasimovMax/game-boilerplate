@@ -3,24 +3,29 @@ import { Land } from '@/entities/land/Land'
 import { LandRenderer } from '@/entities/land/LandRenderer'
 import { Player } from '@/entities/player/Player'
 import { PlayerRenderer } from '@/entities/player/PlayerRenderer'
-import { degToRad } from '@/shared/math'
+import { Box } from '@/entities/box/Box'
+import { BoxRenderer } from '@/entities/box/BoxRenderer'
 
 export function DebugLevel() {
   return (
     <>
       <Camera
-        position={{ x: 0, y: 3, z: 0 }}
-        rotation={{ x: degToRad(-50), y: degToRad(-32), z: degToRad(-32) }}
+        position={{ x: 15, y: 15, z: 15 }}
+        rotation={{ x: -35, y: 45, z: 0 }}
+        fov={20}
       />
       <Land />
       <LandRenderer />
-      <Player position={{ x: 0, y: 1, z: 0 }} />
+      <Player position={{ x: 0, y: 0, z: 0 }} />
       <PlayerRenderer />
+      <Box center={{ x: 0, y: 0.5, z: 0 }} />
+      <BoxRenderer />
+
       <ambientLight />
       <directionalLight
         castShadow
         intensity={1}
-        position={[-2.97, 3.17, 0]}
+        position={[0, 3, 3]}
         shadow-mapSize-height={1024}
         shadow-mapSize-width={1024}
       />

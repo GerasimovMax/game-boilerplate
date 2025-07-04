@@ -9,8 +9,8 @@ export function LandRenderer() {
 
   return (
     <EntityRenderer entity={land}>
-      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[10, 10]} />
+      <mesh position={[0, -0.1, 0]} receiveShadow>
+        <boxGeometry args={[10, 0.2, 10]} />
         <meshStandardMaterial color="white" />
       </mesh>
     </EntityRenderer>

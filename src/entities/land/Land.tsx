@@ -9,7 +9,7 @@ export function Land() {
   useEffect(() => {
     const entity = world.spawn(
       LandTrait,
-      Physics({ type: 'fixed' })
+      Physics({ type: 'static' })
     )
 
     return () => entity.destroy()

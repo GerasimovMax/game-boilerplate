@@ -22,10 +22,10 @@ export const transformFromTraits = (world: World) => {
   }
 }
 
-/** Effect only on entities without physics or rigid body */
+/** Effect only on simple entities or physics with type kinematic */
 export const positionFromVelocity = (world: World, delta: number) => {
   const entities = world.query(Position, Velocity)
-    .filter((entity) => !entity.has(Physics) || entity.get(Physics)?.type === 'kinematicPosition')
+    .filter((entity) => !entity.has(Physics) || entity.get(Physics)?.type === 'kinematic')
 
   for (const entity of entities) {
     const velocity = entity.get(Velocity)
@@ -62,7 +62,7 @@ export const syncTransformFromRigid = (world: World) => {
 /** Set kinematic body position from traits position */
 export const transformKinematicFromTraits = (world: World) => {
   const entities = world.query(Physics, RigidBody)
-    .filter((entity) => entity.get(Physics)?.type === 'kinematicPosition')
+    .filter((entity) => entity.get(Physics)?.type === 'kinematic')
 
   for (const entity of entities) {
     const rigidBody = entity.get(RigidBody)
