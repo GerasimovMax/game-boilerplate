@@ -2,7 +2,7 @@ import { type World } from 'koota'
 import { Player } from './traits'
 import { Input, Velocity, Controllable } from '@/shared/traits'
 import { Speed } from './traits'
-import { multiply, normalize } from '@/shared/math'
+import { vec3 } from 'gl-matrix'
 
 export const playerController = (world: World) => {
   const player = world.queryFirst(Player, Controllable)
@@ -11,26 +11,29 @@ export const playerController = (world: World) => {
   const input = player.get(Input)
   const speed = player.get(Speed)
   if (input) {
-    const direction = { x: 0, y: 0, z: 0 }
+    const direction = vec3.create()
 
     if (input.up) {
-      direction.x -= 1
-      direction.z -= 1
+      direction[0] -= 1
+      direction[2] -= 1
     }
     if (input.down) {
-      direction.x += 1
-      direction.z += 1
+      direction[0] += 1
+      direction[2] += 1
     }
     if (input.left) {
-      direction.x -= 1
-      direction.z += 1
+      direction[0] -= 1
+      direction[2] += 1
     }
     if (input.right) {
-      direction.x += 1
-      direction.z -= 1
+      direction[0] += 1
+      direction[2] -= 1
     }
 
-    const velocity = normalize(direction)
-    player.set(Velocity, multiply(velocity, speed?.value ?? 1))
+    const velocity = vec3.create()
+    vec3.normalize(velocity, direction)
+    vec3.scale(velocity, velocity, speed?.value ?? 1)
+
+    player.set(Velocity, { x: velocity[0], y: velocity[1], z: velocity[2] })
   }
 }

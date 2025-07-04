@@ -1,6 +1,6 @@
 import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody } from './traits'
-import { multiply, add } from './math'
 import { type World } from 'koota'
+import { vec3 } from 'gl-matrix'
 
 /** Set mesh position and rotation from position and rotation traits */
 export const transformFromTraits = (world: World) => {
@@ -32,9 +32,20 @@ export const positionFromVelocity = (world: World, delta: number) => {
     const position = entity.get(Position)
 
     if (velocity && position) {
-      const displacement = multiply(velocity, delta)
-      const nextPosition = add(position, displacement)
-      entity.set(Position, nextPosition)
+      const posVec = vec3.fromValues(position.x, position.y, position.z)
+      const velVec = vec3.fromValues(velocity.x, velocity.y, velocity.z)
+
+      const displacement = vec3.create()
+      vec3.scale(displacement, velVec, delta)
+
+      const nextPosVec = vec3.create()
+      vec3.add(nextPosVec, posVec, displacement)
+
+      entity.set(Position, {
+        x: nextPosVec[0],
+        y: nextPosVec[1],
+        z: nextPosVec[2]
+      })
     }
   }
 }

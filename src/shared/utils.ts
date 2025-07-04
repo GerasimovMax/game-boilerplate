@@ -7,3 +7,7 @@ export function vector3ToArray(v: Vector3): [number, number, number] {
 export function arrayToVector3(arr: [number, number, number]): Vector3 {
   return { x: arr[0], y: arr[1], z: arr[2] }
 }
+
+export function degToRad(degrees: number): number {
+  return degrees * Math.PI / 180
+}
