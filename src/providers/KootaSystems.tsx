@@ -5,6 +5,7 @@ import { useBeforePhysicsStep, useAfterPhysicsStep } from '@react-three/rapier'
 import {
   inputSystem,
   transformFromTraits,
+  velocityFromDesiredVelocity,
   positionFromVelocity,
   syncTransformFromRigid,
   transformKinematicFromTraits
@@ -21,8 +22,9 @@ export function KootaSystems({ children }: { children: ReactNode }) {
     inputSystem(world, keys.current)
     playerController(world)
     boxController(world)
-    transformFromTraits(world)
+    velocityFromDesiredVelocity(world, delta)
     positionFromVelocity(world, delta)
+    transformFromTraits(world)
   })
 
   useBeforePhysicsStep(() => {

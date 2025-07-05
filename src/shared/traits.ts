@@ -5,6 +5,8 @@ import { type Quaternion, type Vector3 } from '@/types'
 
 export const Position = trait<Vector3>({ x: 0, y: 0, z: 0 })
 export const Velocity = trait<Vector3>({ x: 0, y: 0, z: 0 })
+export const DesiredVelocity = trait<Vector3>({ x: 0, y: 0, z: 0 })
+export const Damping = trait({ value: 10 })
 export const Rotation = trait<Quaternion>({ x: 0, y: 0, z: 0, w: 1 })
 
 export const Mesh = trait(() =>new Object3D())

@@ -1,24 +1,30 @@
-import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody } from './traits'
+import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody, DesiredVelocity, Damping } from './traits'
 import { type World } from 'koota'
 import { vec3 } from 'gl-matrix'
 
-/** Set mesh position and rotation from position and rotation traits */
-export const transformFromTraits = (world: World) => {
-  const entities = world.query(Position, Mesh)
+/** Smoothly interpolate velocity towards desired velocity based on damping */
+export const velocityFromDesiredVelocity = (world: World, delta: number) => {
+  const entities = world.query(Velocity, DesiredVelocity)
 
   for (const entity of entities) {
-    const mesh = entity.get(Mesh)
-    if (!mesh) continue
+    const current = entity.get(Velocity) || { x: 0, y: 0, z: 0 }
+    const desired = entity.get(DesiredVelocity) || { x: 0, y: 0, z: 0 }
+    const damping = entity.get(Damping)?.value
 
-    const position = entity.get(Position)
-    if (position) {
-      mesh.position.set(position.x, position.y, position.z)
+    const currentVec = vec3.fromValues(current.x, current.y, current.z)
+    const desiredVec = vec3.fromValues(desired.x, desired.y, desired.z)
+
+    if (damping) {
+      vec3.lerp(currentVec, currentVec, desiredVec, delta * damping)
+    } else {
+      vec3.copy(currentVec, desiredVec)
     }
 
-    const rotation = entity.get(Rotation)
-    if (rotation) {
-      mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
-    }
+    entity.set(Velocity, {
+      x: currentVec[0],
+      y: currentVec[1],
+      z: currentVec[2]
+    })
   }
 }
 
@@ -46,6 +52,26 @@ export const positionFromVelocity = (world: World, delta: number) => {
         y: nextPosVec[1],
         z: nextPosVec[2]
       })
+    }
+  }
+}
+
+/** Set mesh position and rotation from position and rotation traits */
+export const transformFromTraits = (world: World) => {
+  const entities = world.query(Position, Mesh)
+
+  for (const entity of entities) {
+    const mesh = entity.get(Mesh)
+    if (!mesh) continue
+
+    const position = entity.get(Position)
+    if (position) {
+      mesh.position.set(position.x, position.y, position.z)
+    }
+
+    const rotation = entity.get(Rotation)
+    if (rotation) {
+      mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w)
     }
   }
 }
