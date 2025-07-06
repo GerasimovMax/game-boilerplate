@@ -1,15 +1,20 @@
 import { useRef, useEffect } from 'react'
-import { RigidBody, type RapierRigidBody, type RigidBodyTypeString } from '@react-three/rapier'
-import { Mesh, RigidBody as RigidBodyTrait, Physics, Position, Rotation } from '@/shared/traits'
+import { CuboidCollider, BallCollider, CapsuleCollider, RigidBody, type RapierRigidBody, type RigidBodyTypeString, type RigidBodyAutoCollider } from '@react-three/rapier'
+import { Mesh, RigidBody as RigidBodyTrait, Physics, Position, Rotation, Collider, type PhysicsType, type ColliderType, type AutoColliderType } from '@/shared/traits'
 import { type Entity } from 'koota'
 import { type Object3D } from 'three'
 import { type ReactNode } from 'react'
 
 
-const physicsTypeMapping: Record<string, RigidBodyTypeString> = {
+const physicsTypeMapping: Record<PhysicsType, RigidBodyTypeString> = {
   static: 'fixed',
   kinematic: 'kinematicPosition',
   dynamic: 'dynamic',
+}
+
+const autoColliderTypeMapping: Record<AutoColliderType, RigidBodyAutoCollider> = {
+  box: 'cuboid',
+  sphere: 'ball'
 }
 
 export function EntityRenderer({ entity, children }: { entity: Entity; children: ReactNode }) {
@@ -47,12 +52,15 @@ export function EntityRenderer({ entity, children }: { entity: Entity; children:
   }, [entity])
 
   const physics = entity.get(Physics)
+  const collider = entity.get(Collider)
 
   return physics ? (
     <RigidBody
       ref={rigidBodyRef}
       type={physicsTypeMapping[physics.type]}
+      colliders={collider ? false : autoColliderTypeMapping[physics.autoCollider!]}
     >
+      {collider && <ColliderRenderer collider={collider} />}
       {children}
     </RigidBody>
   ) : (
@@ -60,4 +68,19 @@ export function EntityRenderer({ entity, children }: { entity: Entity; children:
       {children}
     </group>
   )
+}
+
+function ColliderRenderer({ collider }: { collider: ColliderType | null }) {
+  if (!collider) return null
+
+  switch (collider.type) {
+    case 'box':
+      return <CuboidCollider args={[collider.size.x, collider.size.y, collider.size.z]} />
+    case 'sphere':
+      return <BallCollider args={[collider.radius]} />
+    case 'capsule':
+      return <CapsuleCollider args={[collider.radius, collider.height]} />
+    default:
+      return null
+  }
 }
