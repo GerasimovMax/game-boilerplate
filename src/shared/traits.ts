@@ -1,4 +1,4 @@
-import { trait } from 'koota'
+import { trait, type Entity } from 'koota'
 import { Object3D } from 'three'
 import { type RapierRigidBody } from '@react-three/rapier'
 import { type Quaternion, type Vector3 } from '@/types'
@@ -31,6 +31,8 @@ export const Collider = trait((collider: ColliderType = { type: 'box', size: { x
       throw new Error('Invalid collider type')
   }
 })
+export const CollisionEvents = trait()
+export const Collisions = trait(() => [] as Entity[])
 
 export const Controllable = trait()
 export const Input = trait({

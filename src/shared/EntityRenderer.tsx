@@ -1,6 +1,12 @@
 import { useRef, useEffect } from 'react'
-import { CuboidCollider, BallCollider, CapsuleCollider, RigidBody, type RapierRigidBody, type RigidBodyTypeString, type RigidBodyAutoCollider } from '@react-three/rapier'
-import { Mesh, RigidBody as RigidBodyTrait, Physics, Position, Rotation, Collider, type PhysicsType, type ColliderType, type AutoColliderType } from '@/shared/traits'
+import {
+  CuboidCollider, BallCollider, CapsuleCollider, RigidBody,
+  type RapierRigidBody, type RigidBodyTypeString, type RigidBodyAutoCollider, type CollisionEnterPayload, type CollisionExitPayload,
+} from '@react-three/rapier'
+import {
+  Mesh, RigidBody as RigidBodyTrait, Physics, Position, Rotation, Collider, CollisionEvents, Collisions,
+  type PhysicsType, type ColliderType, type AutoColliderType
+} from '@/shared/traits'
 import { type Entity } from 'koota'
 import { type Object3D } from 'three'
 import { type ReactNode } from 'react'
@@ -51,14 +57,52 @@ export function EntityRenderer({ entity, children }: { entity: Entity; children:
     }
   }, [entity])
 
+  function updateCollisions(entity: Entity, list: Entity[]) {
+    if (list.length === 0) {
+      entity.remove(Collisions)
+    } else if (entity.has(Collisions)) {
+      entity.set(Collisions, list)
+    } else {
+      entity.add(Collisions(list))
+    }
+  }
+
+  function getOtherEntity(event: CollisionEnterPayload | CollisionExitPayload) {
+    const userData = event.other.rigidBody?.userData as { entity: Entity | undefined }
+    return userData?.entity
+  }
+
+  const onCollisionEnter = (event: CollisionEnterPayload) => {
+    const other = getOtherEntity(event)
+    if (!entity || !other) return
+
+    const existing = entity.get(Collisions) ?? []
+    if (!existing.includes(other)) {
+      updateCollisions(entity, [...existing, other])
+    }
+  }
+
+  const onCollisionExit = (event: CollisionExitPayload) => {
+    const other = getOtherEntity(event)
+    if (!entity || !other) return
+
+    const existing = entity.get(Collisions) ?? []
+    const updated = existing.filter((e) => e !== other)
+    updateCollisions(entity, updated)
+  }
+
   const physics = entity.get(Physics)
   const collider = entity.get(Collider)
+  const hasCollisionEvents = entity.get(CollisionEvents)
 
   return physics ? (
     <RigidBody
       ref={rigidBodyRef}
       type={physicsTypeMapping[physics.type]}
       colliders={collider ? false : autoColliderTypeMapping[physics.autoCollider!]}
+      userData={{ entity }}
+      onCollisionEnter={hasCollisionEvents ? onCollisionEnter : undefined}
+      onCollisionExit={hasCollisionEvents ? onCollisionExit : undefined}
     >
       {collider && <ColliderRenderer collider={collider} />}
       {children}
