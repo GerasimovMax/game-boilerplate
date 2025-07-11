@@ -1,14 +1,15 @@
 import { useWorld } from 'koota/react'
 import { useFrame } from '@react-three/fiber'
-import { useInput } from '@/hooks/useInput'
 import { useBeforePhysicsStep, useAfterPhysicsStep } from '@react-three/rapier'
+import { useInput } from '@/hooks/useInput'
 import {
   inputSystem,
-  transformFromTraits,
+  transformMeshFromTraits,
   velocityFromDesiredVelocity,
   positionFromVelocity,
   syncTransformFromRigid,
-  transformKinematicFromTraits
+  transformKinematicFromTraits,
+  applyForceFromDesiredVelocity,
 } from '@/shared/systems'
 import { playerController } from '@/entities/player/systems'
 import { boxController } from '@/entities/box/systems'
@@ -24,11 +25,12 @@ export function KootaSystems({ children }: { children: ReactNode }) {
     boxController(world)
     velocityFromDesiredVelocity(world, delta)
     positionFromVelocity(world, delta)
-    transformFromTraits(world)
+    transformMeshFromTraits(world)
   })
 
   useBeforePhysicsStep(() => {
     transformKinematicFromTraits(world)
+    applyForceFromDesiredVelocity(world)
   })
 
   useAfterPhysicsStep(() => {

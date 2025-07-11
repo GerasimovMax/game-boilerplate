@@ -1,10 +1,14 @@
-import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody, DesiredVelocity, Damping } from './traits'
+import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody, DesiredVelocity, Damping, Collider } from './traits'
 import { type World } from 'koota'
 import { vec3 } from 'gl-matrix'
 
-/** Smoothly interpolate velocity towards desired velocity based on damping */
+/**
+ * Smoothly interpolates velocity towards desired velocity based on damping.
+ * Ignores entities with dynamic bodies.
+ */
 export const velocityFromDesiredVelocity = (world: World, delta: number) => {
   const entities = world.query(Velocity, DesiredVelocity)
+    .filter((entity) => entity.get(Physics)?.type !== 'dynamic')
 
   for (const entity of entities) {
     const current = entity.get(Velocity) || { x: 0, y: 0, z: 0 }
@@ -28,7 +32,10 @@ export const velocityFromDesiredVelocity = (world: World, delta: number) => {
   }
 }
 
-/** Effect only on simple entities or physics with type kinematic */
+/**
+ * Sets position from velocity.
+ * Affects only simple entities or kinematic bodies.
+ */
 export const positionFromVelocity = (world: World, delta: number) => {
   const entities = world.query(Position, Velocity)
     .filter((entity) => !entity.has(Physics) || entity.get(Physics)?.type === 'kinematic')
@@ -56,9 +63,13 @@ export const positionFromVelocity = (world: World, delta: number) => {
   }
 }
 
-/** Set mesh position and rotation from position and rotation traits */
-export const transformFromTraits = (world: World) => {
+/**
+ * Sets mesh position and rotation from position and rotation traits.
+ * Doesn't affect entities with colliders.
+ */
+export const transformMeshFromTraits = (world: World) => {
   const entities = world.query(Position, Mesh)
+    .filter((entity) => !entity.get(Collider))
 
   for (const entity of entities) {
     const mesh = entity.get(Mesh)
@@ -76,7 +87,10 @@ export const transformFromTraits = (world: World) => {
   }
 }
 
-/** Set traits position and rotation from rigid body */
+/**
+ * Sets traits position, rotation and velocity from rigid body.
+ * Only effects dynamic entities.
+ */
 export const syncTransformFromRigid = (world: World) => {
   const entities = world.query(Physics, RigidBody)
     .filter((entity) => entity.get(Physics)?.type === 'dynamic')
@@ -93,10 +107,19 @@ export const syncTransformFromRigid = (world: World) => {
     if (rigidRotation && entity.has(Rotation)) {
       entity.set(Rotation, rigidRotation)
     }
+
+    const rigidVelocity = rigidBody?.linvel()
+    if (rigidVelocity && entity.has(Velocity)) {
+      entity.set(Velocity, {
+        x: rigidVelocity.x,
+        y: rigidVelocity.y,
+        z: rigidVelocity.z
+      })
+    }
   }
 }
 
-/** Set kinematic body position from traits position */
+/** Sets kinematic body position and rotation from traits. */
 export const transformKinematicFromTraits = (world: World) => {
   const entities = world.query(Physics, RigidBody)
     .filter((entity) => entity.get(Physics)?.type === 'kinematic')
@@ -117,6 +140,23 @@ export const transformKinematicFromTraits = (world: World) => {
   }
 }
 
+/** Applies force to dynamic bodies based on their desired velocity. */
+export const applyForceFromDesiredVelocity = (world: World) => {
+  const entities = world.query(Physics, RigidBody)
+    .filter((entity) => entity.get(Physics)?.type === 'dynamic')
+
+  for (const entity of entities) {
+    const rigidBody = entity.get(RigidBody)
+    if (!rigidBody) continue
+
+    const desiredVelocity = entity.get(DesiredVelocity)
+    if (desiredVelocity) {
+      rigidBody.addForce(desiredVelocity, true)
+    }
+  }
+}
+
+/** Simple input system. */
 export const inputSystem = (world: World, keys: Set<string>) => {
   const entities = world.query(Input)
 
