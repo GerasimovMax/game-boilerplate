@@ -151,7 +151,21 @@ export const applyForceFromDesiredVelocity = (world: World) => {
 
     const desiredVelocity = entity.get(DesiredVelocity)
     if (desiredVelocity) {
-      rigidBody.addForce(desiredVelocity, true)
+      const linvel = rigidBody.linvel()
+      const mass = rigidBody.mass()
+
+      const desVelVec = vec3.fromValues(desiredVelocity.x, desiredVelocity.y, desiredVelocity.z)
+      const linvelVec = vec3.fromValues(linvel.x, linvel.y, linvel.z)
+
+      const impulse = vec3.create()
+      vec3.subtract(impulse, desVelVec, linvelVec)
+      vec3.scale(impulse, impulse, mass)
+
+      rigidBody.applyImpulse({
+        x: impulse[0],
+        y: impulse[1],
+        z: impulse[2],
+      }, true)
     }
   }
 }
