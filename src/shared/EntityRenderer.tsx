@@ -159,7 +159,7 @@ function ColliderRenderer({
     case 'sphere':
       return <BallCollider args={[collider.radius]} {...props} />
     case 'capsule':
-      return <CapsuleCollider args={[collider.radius, collider.height]} {...props} />
+      return <CapsuleCollider args={[collider.height / 2 - collider.radius, collider.radius]} {...props} />
     default:
       return null
   }
