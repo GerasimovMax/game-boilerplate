@@ -2,6 +2,7 @@ import { useWorld } from 'koota/react'
 import { useFrame } from '@react-three/fiber'
 import { useBeforePhysicsStep, useAfterPhysicsStep } from '@react-three/rapier'
 import { useInput } from '@/hooks/useInput'
+import { useCustomSystems } from '@/hooks/useCustomSystems'
 import {
   inputSystem,
   transformMeshFromTraits,
@@ -11,21 +12,25 @@ import {
   transformKinematicFromTraits,
   applyForceFromDesiredVelocity,
 } from '@/shared/systems'
-import { playerController } from '@/entities/player/systems'
-import { boxController } from '@/entities/box/systems'
 import { type ReactNode } from 'react'
 
 export function KootaSystems({ children }: { children: ReactNode }) {
   const world = useWorld()
   const keys = useInput()
+  const customSystems = useCustomSystems()
 
   useFrame((_, delta) => {
-    inputSystem(world, keys.current)
-    playerController(world)
-    boxController(world)
-    velocityFromDesiredVelocity(world, delta)
-    positionFromVelocity(world, delta)
-    transformMeshFromTraits(world)
+    const context = { world, delta, keys: keys.current }
+
+    inputSystem(context)
+
+    for (const system of customSystems) {
+      system(context)
+    }
+
+    velocityFromDesiredVelocity(context)
+    positionFromVelocity(context)
+    transformMeshFromTraits(context)
   })
 
   useBeforePhysicsStep(() => {

@@ -1,12 +1,12 @@
 import { Mesh, Position, Rotation, Velocity, Input, Physics, RigidBody, DesiredVelocity, Damping, Collider } from './traits'
-import { type World } from 'koota'
+import type { ECSSystem, ECSPhysicsSystem } from '@/types'
 import { vec3 } from 'gl-matrix'
 
 /**
  * Smoothly interpolates velocity towards desired velocity based on damping.
  * Ignores entities with dynamic bodies.
  */
-export const velocityFromDesiredVelocity = (world: World, delta: number) => {
+export const velocityFromDesiredVelocity: ECSSystem = ({ world, delta }) => {
   const entities = world.query(Velocity, DesiredVelocity)
     .filter((entity) => entity.get(Physics)?.type !== 'dynamic')
 
@@ -36,7 +36,7 @@ export const velocityFromDesiredVelocity = (world: World, delta: number) => {
  * Sets position from velocity.
  * Affects only simple entities or kinematic bodies.
  */
-export const positionFromVelocity = (world: World, delta: number) => {
+export const positionFromVelocity: ECSSystem = ({ world, delta }) => {
   const entities = world.query(Position, Velocity)
     .filter((entity) => !entity.has(Physics) || entity.get(Physics)?.type === 'kinematic')
 
@@ -67,7 +67,7 @@ export const positionFromVelocity = (world: World, delta: number) => {
  * Sets mesh position and rotation from position and rotation traits.
  * Doesn't affect entities with colliders.
  */
-export const transformMeshFromTraits = (world: World) => {
+export const transformMeshFromTraits: ECSSystem = ({ world }) => {
   const entities = world.query(Position, Mesh)
     .filter((entity) => !entity.get(Collider))
 
@@ -91,7 +91,7 @@ export const transformMeshFromTraits = (world: World) => {
  * Sets traits position, rotation and velocity from rigid body.
  * Only effects dynamic entities.
  */
-export const syncTransformFromRigid = (world: World) => {
+export const syncTransformFromRigid: ECSPhysicsSystem = (world) => {
   const entities = world.query(Physics, RigidBody)
     .filter((entity) => entity.get(Physics)?.type === 'dynamic')
 
@@ -120,7 +120,7 @@ export const syncTransformFromRigid = (world: World) => {
 }
 
 /** Sets kinematic body position and rotation from traits. */
-export const transformKinematicFromTraits = (world: World) => {
+export const transformKinematicFromTraits: ECSPhysicsSystem = (world) => {
   const entities = world.query(Physics, RigidBody)
     .filter((entity) => entity.get(Physics)?.type === 'kinematic')
 
@@ -141,7 +141,7 @@ export const transformKinematicFromTraits = (world: World) => {
 }
 
 /** Applies force to dynamic bodies based on their desired velocity. */
-export const applyForceFromDesiredVelocity = (world: World) => {
+export const applyForceFromDesiredVelocity: ECSPhysicsSystem = (world) => {
   const entities = world.query(Physics, RigidBody)
     .filter((entity) => entity.get(Physics)?.type === 'dynamic')
 
@@ -171,7 +171,7 @@ export const applyForceFromDesiredVelocity = (world: World) => {
 }
 
 /** Simple input system. */
-export const inputSystem = (world: World, keys: Set<string>) => {
+export const inputSystem: ECSSystem = ({ world, keys }) => {
   const entities = world.query(Input)
 
   for (const entity of entities) {

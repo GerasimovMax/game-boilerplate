@@ -1,10 +1,10 @@
-import { type World } from 'koota'
 import { Player } from './traits'
 import { Input, DesiredVelocity, Controllable } from '@/shared/traits'
 import { Speed } from './traits'
 import { vec3 } from 'gl-matrix'
+import type { ECSSystem } from '@/types'
 
-export const playerController = (world: World) => {
+export const playerController: ECSSystem = ({ world }) => {
   const player = world.queryFirst(Player, Controllable)
   if (!player) return
 

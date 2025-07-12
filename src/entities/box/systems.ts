@@ -1,8 +1,8 @@
 import { Box } from './traits'
 import { Position, Physics } from '@/shared/traits'
-import { type World } from 'koota'
+import type { ECSSystem } from '@/types'
 
-export const boxController = (world: World) => {
+export const boxController: ECSSystem = ({ world }) => {
   const boxes = world.query(Box)
   if (!boxes) return
 
