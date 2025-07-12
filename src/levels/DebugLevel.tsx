@@ -16,7 +16,7 @@ export function DebugLevel() {
       />
       <Land />
       <LandRenderer />
-      <Player position={{ x: 0, y: 0, z: 0 }} />
+      <Player position={{ x: 0, y: 0.4, z: 0 }} />
       <PlayerRenderer />
       <Box center={{ x: 0, y: 0.5, z: 0 }} />
       <BoxRenderer />

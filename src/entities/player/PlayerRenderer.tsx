@@ -14,12 +14,11 @@ export function PlayerRenderer() {
   )
 }
 
-export function PlayerView() {
+function PlayerView() {
   return (
     <mesh
       castShadow
       receiveShadow
-      position={[0, 0.4, 0]}
     >
       <boxGeometry args={[0.3, 0.8, 0.3]} />
       <meshStandardMaterial color="red" />
