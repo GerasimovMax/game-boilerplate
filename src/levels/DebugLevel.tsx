@@ -5,6 +5,8 @@ import { Player } from '@/entities/player/Player'
 import { PlayerRenderer } from '@/entities/player/PlayerRenderer'
 import { Box } from '@/entities/box/Box'
 import { BoxRenderer } from '@/entities/box/BoxRenderer'
+import { Item } from '@/entities/item/Item'
+import { ItemRenderer } from '@/entities/item/ItemRenderer'
 
 export function DebugLevel() {
   return (
@@ -20,6 +22,8 @@ export function DebugLevel() {
       <PlayerRenderer />
       <Box center={{ x: 0, y: 0.5, z: 0 }} />
       <BoxRenderer />
+      <Item position={{ x: 0, y: 0.5, z: 0 }} areaSize={8} />
+      <ItemRenderer />
 
       <ambientLight />
       <directionalLight
